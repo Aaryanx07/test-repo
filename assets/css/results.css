@@ -1,0 +1,148 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f3f4f8;
+    padding:40px;
+}
+
+.results-page{
+    width:100%;
+}
+
+.results-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:40px;
+}
+
+.results-header h1{
+    font-size:72px;
+    margin-bottom:10px;
+}
+
+.results-header p{
+    color:#666;
+    font-size:24px;
+}
+
+.back-btn{
+    border:none;
+    background:#2563eb;
+    color:white;
+    padding:18px 30px;
+    border-radius:18px;
+    cursor:pointer;
+    font-size:20px;
+}
+
+/* PRODUCT */
+
+.product-card{
+    background:white;
+    border-radius:30px;
+    padding:40px;
+    margin-bottom:40px;
+    display:flex;
+    align-items:center;
+    gap:40px;
+}
+
+.product-card img{
+    width:220px;
+    height:220px;
+    object-fit:contain;
+}
+
+.product-info h2{
+    font-size:42px;
+    margin-bottom:12px;
+}
+
+.product-info p{
+    color:#555;
+    font-size:22px;
+}
+
+/* GRID */
+
+.results-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+}
+
+.site-card{
+    background:white;
+    border-radius:28px;
+    padding:30px;
+    text-align:center;
+}
+
+.site-card img{
+    width:140px;
+    height:140px;
+    object-fit:contain;
+    margin-bottom:20px;
+}
+
+.site-card h3{
+    font-size:34px;
+    margin-bottom:20px;
+    text-transform:capitalize;
+}
+
+.price{
+    font-size:54px;
+    color:#16a34a;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.not-found{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:18px;
+    border-radius:14px;
+    font-size:24px;
+    font-weight:600;
+}
+
+.visit-btn{
+    display:inline-block;
+    margin-top:10px;
+    padding:16px 28px;
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+    border-radius:16px;
+    font-size:20px;
+}
+
+/* MOBILE */
+
+@media(max-width:1000px){
+
+    .results-grid{
+        grid-template-columns:1fr;
+    }
+
+    .product-card{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .results-header{
+        flex-direction:column;
+        gap:20px;
+    }
+
+    .results-header h1{
+        font-size:48px;
+    }
+}

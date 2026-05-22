@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Review Checker
+    </title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+
+            background:#f4f5fb;
+
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            padding:40px;
+        }
+
+        .container{
+
+            width:100%;
+            max-width:850px;
+
+            background:white;
+
+            border-radius:30px;
+
+            padding:50px;
+
+            box-shadow:0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .top{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:40px;
+        }
+
+        .back-btn{
+
+            text-decoration:none;
+
+            background:#2f63ea;
+            color:white;
+
+            padding:14px 24px;
+
+            border-radius:14px;
+
+            font-size:18px;
+            font-weight:600;
+
+            transition:0.3s;
+        }
+
+        .back-btn:hover{
+
+            background:#1d4ed8;
+        }
+
+        h1{
+
+            font-size:56px;
+
+            margin-bottom:12px;
+
+            color:#111;
+        }
+
+        .subtitle{
+
+            font-size:22px;
+
+            color:#666;
+
+            margin-bottom:35px;
+        }
+
+        .search-box{
+
+            display:flex;
+            gap:15px;
+
+            margin-bottom:40px;
+        }
+
+        .search-box input{
+
+            flex:1;
+
+            padding:18px 22px;
+
+            border:none;
+
+            outline:none;
+
+            border-radius:18px;
+
+            background:#f4f5fb;
+
+            font-size:18px;
+        }
+
+        .search-box button{
+
+            background:#2f63ea;
+
+            color:white;
+
+            border:none;
+
+            padding:0 30px;
+
+            border-radius:18px;
+
+            font-size:18px;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .search-box button:hover{
+
+            background:#1d4ed8;
+        }
+
+        .result-card{
+
+            background:#f8f9ff;
+
+            border-radius:24px;
+
+            padding:35px;
+
+            display:flex;
+            align-items:center;
+            gap:30px;
+        }
+
+        .score-circle{
+
+            width:130px;
+            height:130px;
+
+            border-radius:50%;
+
+            background:conic-gradient(
+                #2f63ea 0% 82%,
+                #dfe4ff 82% 100%
+            );
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            position:relative;
+
+            flex-shrink:0;
+        }
+
+        .score-circle::before{
+
+            content:"";
+
+            position:absolute;
+
+            width:95px;
+            height:95px;
+
+            background:white;
+
+            border-radius:50%;
+        }
+
+        .score{
+
+            position:relative;
+
+            font-size:28px;
+            font-weight:700;
+
+            color:#111;
+        }
+
+        .result-content h2{
+
+            font-size:36px;
+
+            margin-bottom:12px;
+        }
+
+        .result-content p{
+
+            font-size:20px;
+
+            color:#666;
+
+            line-height:1.6;
+        }
+
+        .badge{
+
+            margin-top:18px;
+
+            display:inline-block;
+
+            background:#dff7e6;
+
+            color:#1e9b4f;
+
+            padding:10px 18px;
+
+            border-radius:12px;
+
+            font-size:16px;
+            font-weight:600;
+        }
+
+        @media(max-width:768px){
+
+            .container{
+
+                padding:30px;
+            }
+
+            h1{
+
+                font-size:40px;
+            }
+
+            .result-card{
+
+                flex-direction:column;
+                text-align:center;
+            }
+
+            .search-box{
+
+                flex-direction:column;
+            }
+
+            .search-box button{
+
+                height:55px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="top">
+
+            <div>
+
+                <h1>
+                    AI Review Checker
+                </h1>
+
+                <p class="subtitle">
+                    Paste product URL to analyze reviews.
+                </p>
+
+            </div>
+
+            <a
+            href="./dashboard.html"
+            class="back-btn"
+            >
+                ← Back
+            </a>
+
+        </div>
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+            <input
+            type="text"
+            id="reviewUrl"
+            placeholder="Paste Amazon / Flipkart product URL..."
+            >
+
+            <button id="analyzeBtn">
+
+                Analyze
+
+            </button>
+
+        </div>
+
+        <!-- RESULT -->
+
+        <div class="result-card">
+
+            <div class="score-circle">
+
+                <div class="score">
+
+                    82%
+
+                </div>
+
+            </div>
+
+            <div class="result-content">
+
+                <h2>
+                    Reviews Mostly Authentic
+                </h2>
+
+                <p>
+                    AI detected low spam probability and
+                    genuine customer engagement patterns
+                    across reviews.
+                </p>
+
+                <div class="badge">
+
+                    ✓ Trusted Product Reviews
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const analyzeBtn =
+        document.getElementById("analyzeBtn");
+
+        analyzeBtn.addEventListener("click",()=>{
+
+            const url =
+            document.getElementById("reviewUrl").value;
+
+            if(!url){
+
+                alert("Please paste a product URL");
+
+                return;
+            }
+
+            alert(
+                "AI Review Analysis Started"
+            );
+        });
+
+    </script>
+
+</body>
+
+</html>

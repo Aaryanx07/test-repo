@@ -1,0 +1,1 @@
+console.log("PriceCompare Loaded");

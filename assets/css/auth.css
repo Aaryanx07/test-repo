@@ -1,0 +1,39 @@
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f4f7fb;
+  font-family:Inter, Arial;
+}
+
+.auth-box{
+  width:420px;
+  background:white;
+  padding:45px;
+  border-radius:28px;
+}
+
+.auth-box h1{
+  margin-bottom:35px;
+}
+
+.auth-box form{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.auth-box input{
+  padding:18px;
+  border-radius:16px;
+  border:1px solid #ddd;
+}
+
+.auth-box button{
+  padding:18px;
+  border:none;
+  border-radius:16px;
+  background:#2563eb;
+  color:white;
+}
