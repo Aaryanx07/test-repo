@@ -1,3 +1,6 @@
+const generateRecommendation =
+require("../services/aiRecommendation.js");
+
 const parallelSearch =
 require("../services/productSearch/parallelSearch");
 
@@ -7,6 +10,11 @@ async (req,res)=>{
     try{
 
         const { product } = req.body;
+
+        const aiData =
+        generateRecommendation(product);
+
+        console.log(aiData);
 
         console.log(
             "Searching for:",
@@ -24,13 +32,17 @@ async (req,res)=>{
         }
 
         const results =
-        await parallelSearch(product);
+        await parallelSearch(
+            aiData.optimizedSearch
+        );
 
         return res.json({
 
             success:true,
 
             productName:product,
+
+            aiData,
 
             results
         });

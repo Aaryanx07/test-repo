@@ -418,6 +418,9 @@
         flipkart:
         "https://upload.wikimedia.org/wikipedia/commons/e/e5/Flipkart_logo_%282026%29.svg",
 
+        bigbasket:
+        "https://upload.wikimedia.org/wikipedia/commons/a/a2/BigBasket_Logo.png",
+
         blinkit:
         "https://upload.wikimedia.org/wikipedia/commons/2/2f/Blinkit-yellow-app-icon.svg",
 
@@ -425,54 +428,88 @@
         "https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg",
 
         adidas:
-        "https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg",
-
-        bigbasket:
-        "https://upload.wikimedia.org/wikipedia/commons/a/a2/BigBasket_Logo.png"
+        "https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg"
     };
 
     /* DOM */
 
     const loadingScreen =
-    document.getElementById(
-        "loadingScreen"
-    );
+    document.getElementById("loadingScreen");
 
     const productHeader =
-    document.getElementById(
-        "productHeader"
-    );
+    document.getElementById("productHeader");
 
     const resultsContainer =
-    document.getElementById(
-        "resultsContainer"
-    );
+    document.getElementById("resultsContainer");
 
-    /* URL QUERY */
+    /* URL PARAMS */
 
     const urlParams =
-    new URLSearchParams(
-        window.location.search
-    );
+    new URLSearchParams(window.location.search);
 
     const product =
     urlParams.get("product") ||
     urlParams.get("url");
 
-    /* FETCH RESULTS */
+    /* DYNAMIC LOADER */
+
+    const loadingMessages = [
+
+        "🔍 Searching Amazon...",
+        "🛒 Searching Flipkart...",
+        "🥬 Searching BigBasket...",
+        "⚡ Comparing Prices...",
+        "🤖 AI Analysing Best Deals..."
+    ];
+
+    let loadingIndex = 0;
+
+    const loadingInterval = setInterval(()=>{
+
+        loadingScreen.innerHTML =
+
+        `
+        <div class="loader"></div>
+
+        <h2>
+
+            ${loadingMessages[loadingIndex]}
+
+        </h2>
+
+        <p>
+
+            Please wait while we scrape
+            products from multiple websites
+
+        </p>
+        `;
+
+        loadingIndex++;
+
+        if(
+            loadingIndex >=
+            loadingMessages.length
+        ){
+
+            loadingIndex = 0;
+        }
+
+    },1200);
 
     async function loadResults(){
 
         try{
 
-            /* VALIDATION */
-
             if(!product){
+
+                clearInterval(loadingInterval);
 
                 loadingScreen.style.display =
                 "none";
 
                 resultsContainer.innerHTML =
+
                 `
                 <div class="not-found">
                     No product specified
@@ -484,11 +521,6 @@
 
             loadingScreen.style.display =
             "flex";
-
-            console.log(
-                "Searching for:",
-                product
-            );
 
             /* API CALL */
 
@@ -512,88 +544,38 @@
                 }
             );
 
-            console.log(
-                "Response Status:",
-                response.status
-            );
+            const data =
+            await response.json();
 
-            /* SAFE JSON */
-
-            let data = {};
-
-            try{
-
-                data =
-                await response.json();
-
-            }catch(jsonError){
-
-                console.log(
-                    "JSON ERROR:",
-                    jsonError
-                );
-
-                loadingScreen.innerHTML =
-
-                `
-                <h2 style="color:red;">
-                    Backend Error
-                </h2>
-
-                <p style="margin-top:20px;font-size:20px;">
-                    Invalid backend response
-                </p>
-                `;
-
-                return;
-            }
-
-            console.log("API DATA:", data);
-
-            /* VALIDATE RESULTS */
+            console.log(data);
 
             if(
                 !data ||
                 !Array.isArray(data.results)
             ){
 
-                loadingScreen.innerHTML =
-                `
-                <h2 style="color:red;">
-                    No Results Found
-                </h2>
-                `;
-
-                return;
+                throw new Error(
+                    "Invalid API response"
+                );
             }
-
-            /* RESULTS */
 
             const results =
             data.results || [];
 
-            /* PRODUCT INFO */
-
-            const mainProduct =
-            results.find(
-                item => item && item.image
-            );
-
-            const productImage =
-            mainProduct?.image ||
-            "https://via.placeholder.com/200";
-
-            const productName =
-            data.productName ||
-            product;
-
             /* PRODUCT HEADER */
+
+            const firstValid =
+            results.find(item => item?.image);
+
+            const image =
+            firstValid?.image ||
+            "https://via.placeholder.com/200";
 
             productHeader.innerHTML =
 
             `
             <img
-                src="${productImage}"
+                src="${image}"
                 class="main-product-image"
             >
 
@@ -601,175 +583,224 @@
 
                 <h2 class="product-title">
 
-                    ${
-                        productName
-                        .split("|")[0]
-                        .slice(0,60)
-                    }
+                    ${product}
 
                 </h2>
 
                 <p class="product-subtitle">
 
-                    Comparing prices across Amazon,
-                    Flipkart, Blinkit, Nike,
-                    Adidas & BigBasket.
+                    Live comparison across
+                    multiple websites
 
                 </p>
+
+                ${
+                    data.aiData?.ai
+
+                    ?
+
+                    `
+                    <div
+
+                        style="
+                            margin-top:20px;
+                            display:inline-block;
+                            background:#7c3aed;
+                            color:white;
+                            padding:12px 20px;
+                            border-radius:999px;
+                            font-size:18px;
+                            font-weight:700;
+                        "
+                    >
+
+                        🤖 AI Recommended Search
+
+                    </div>
+                    `
+
+                    :
+
+                    ""
+                }
 
             </div>
             `;
 
-            /* EMPTY RESULTS */
+            /* FIND BEST DEAL */
 
-            if(results.length === 0){
+            const validResults =
+            results.filter(item => {
 
-                resultsContainer.innerHTML =
-                `
-                <div class="not-found">
-                    No products found
+                if(!item?.price){
+
+                    return false;
+                }
+
+                const numeric =
+                parseInt(
+
+                    String(item.price)
+                    .replace(/[^\d]/g,"")
+                );
+
+                return !isNaN(numeric);
+            });
+
+            let lowestPrice = Infinity;
+
+            validResults.forEach(item => {
+
+                const numeric =
+                parseInt(
+
+                    String(item.price)
+                    .replace(/[^\d]/g,"")
+                );
+
+                if(numeric < lowestPrice){
+
+                    lowestPrice = numeric;
+                }
+            });
+
+            /* RENDER RESULTS */
+
+            resultsContainer.innerHTML =
+
+            results.map(item => {
+
+                const websiteName =
+                (
+                    item?.website ||
+                    "amazon"
+                ).toLowerCase();
+
+                const logo =
+                websiteLogos[websiteName] ||
+                websiteLogos.amazon;
+
+                let numericPrice = NaN;
+
+                if(item?.price){
+
+                    numericPrice =
+                    parseInt(
+
+                        String(item.price)
+                        .replace(/[^\d]/g,"")
+                    );
+                }
+
+                const isBestDeal =
+                numericPrice === lowestPrice;
+
+                return `
+
+                <div
+                    class="result-card"
+
+                    style="
+                        ${
+                            isBestDeal
+
+                            ?
+
+                            `
+                            border:4px solid #16a34a;
+                            box-shadow:
+                            0 0 30px rgba(22,163,74,0.3);
+                            position:relative;
+                            `
+
+                            :
+
+                            ""
+                        }
+                    "
+                >
+
+                    ${
+                        isBestDeal
+
+                        ?
+
+                        `
+                        <div
+
+                            style="
+                                position:absolute;
+                                top:-15px;
+                                right:20px;
+                                background:#16a34a;
+                                color:white;
+                                padding:10px 18px;
+                                border-radius:999px;
+                                font-size:18px;
+                                font-weight:700;
+                            "
+                        >
+
+                            🏆 Best Deal
+
+                        </div>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    <img
+                        src="${logo}"
+                        class="website-logo"
+                    >
+
+                    <h3>
+
+                        ${item?.website || "Amazon"}
+
+                    </h3>
+
+                    ${
+                        item?.found
+
+                        ?
+
+                        `
+                        <div class="price">
+
+                            ${item.price}
+
+                        </div>
+
+                        <a
+                            href="${item.url}"
+
+                            target="_blank"
+
+                            class="visit-btn"
+                        >
+                            Visit Product
+                        </a>
+                        `
+
+                        :
+
+                        `
+                        <div class="not-found">
+
+                            ✕ Product Not Found
+
+                        </div>
+                        `
+                    }
+
                 </div>
                 `;
+            }).join("");
 
-                loadingScreen.style.display =
-                "none";
-
-                return;
-            }
-
-            /* RESULT CARDS */
-
-/* RESULT CARDS */
-
-resultsContainer.innerHTML =
-
-results.map(item => {
-
-    const websiteName =
-    (
-        item?.website ||
-        item?.store ||
-        "amazon"
-    ).toLowerCase();
-
-    const logo =
-    websiteLogos[websiteName] ||
-    websiteLogos.amazon;
-
-    /* CLEAN PRICE */
-
-    const cleanPrice =
-    parseInt(
-        String(item?.price || "")
-        .replace(/[^0-9]/g, "")
-    );
-
-    const hasPrice =
-    !isNaN(cleanPrice);
-
-    /* PRODUCT LINK FIX */
-
-    let productLink =
-    item?.link ||
-    item?.url ||
-    "#";
-
-    /* AMAZON FIX */
-
-    if(
-        websiteName === "amazon" &&
-        productLink &&
-        !productLink.includes("amazon")
-    ){
-
-        productLink =
-        `https://www.amazon.in/s?k=${encodeURIComponent(product)}`;
-    }
-
-    /* FLIPKART FIX */
-
-    if(
-        websiteName === "flipkart" &&
-        productLink &&
-        !productLink.includes("flipkart")
-    ){
-
-        productLink =
-        `https://www.flipkart.com/search?q=${encodeURIComponent(product)}`;
-    }
-
-    /* BIGBASKET FIX */
-
-    if(
-        websiteName === "bigbasket" &&
-        productLink &&
-        !productLink.includes("bigbasket")
-    ){
-
-        productLink =
-        `https://www.bigbasket.com/ps/?q=${encodeURIComponent(product)}`;
-    }
-
-    return `
-
-    <div class="result-card">
-
-        <img
-            src="${logo}"
-            class="website-logo"
-        >
-
-        <h3>
-
-            ${
-                item?.website ||
-                item?.store ||
-                "Amazon"
-            }
-
-        </h3>
-
-        ${
-            hasPrice
-
-            ?
-
-            `
-            <div class="price">
-
-                ₹${cleanPrice.toLocaleString()}
-
-            </div>
-
-            <a
-                href="${productLink}"
-
-                target="_blank"
-
-                class="visit-btn"
-            >
-                Visit Product
-            </a>
-            `
-
-            :
-
-            `
-            <div class="not-found">
-
-                ✕ Product Not Found
-
-            </div>
-            `
-        }
-
-    </div>
-    `;
-}
-
-).join("");
-
-            /* HIDE LOADER */
+            clearInterval(loadingInterval);
 
             loadingScreen.style.display =
             "none";
@@ -777,10 +808,9 @@ results.map(item => {
 
         catch(error){
 
-            console.log(
-                "FULL ERROR:",
-                error
-            );
+            clearInterval(loadingInterval);
+
+            console.log(error);
 
             loadingScreen.innerHTML =
 
@@ -789,7 +819,7 @@ results.map(item => {
                 Backend Error
             </h2>
 
-            <p style="margin-top:20px;font-size:20px;">
+            <p style="margin-top:20px;">
                 ${error.message}
             </p>
             `;

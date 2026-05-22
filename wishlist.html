@@ -1,21 +1,548 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-  <title>Wishlist</title>
+    <meta charset="UTF-8">
 
-  <link rel="stylesheet" href="assets/css/dashboard.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Wishlist
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+    <style>
+
+        *{
+
+            margin:0;
+            padding:0;
+
+            box-sizing:border-box;
+
+            font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+        }
+
+        body{
+
+            background:#F3F4FA;
+
+            display:flex;
+        }
+
+        /* ========================= */
+        /* SIDEBAR */
+        /* ========================= */
+
+        .sidebar{
+
+            width:260px;
+
+            background:white;
+
+            padding:30px 25px;
+
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+
+            position:fixed;
+
+            top:0;
+            left:0;
+
+            height:100vh;
+
+            box-shadow:
+            0 2px 12px rgba(0,0,0,0.05);
+
+            overflow:hidden;
+        }
+
+        .logo{
+
+            font-size:28px;
+            font-weight:800;
+
+            color:#3563E9;
+
+            margin-bottom:50px;
+        }
+
+        .sidebar-links{
+
+            display:flex;
+            flex-direction:column;
+
+            gap:18px;
+        }
+
+        .sidebar-links a{
+
+            text-decoration:none;
+
+            color:#111827;
+
+            font-size:18px;
+            font-weight:600;
+
+            padding:14px 16px;
+
+            border-radius:14px;
+
+            transition:0.3s;
+        }
+
+        .sidebar-links a:hover{
+
+            background:#EEF2FF;
+
+            color:#3563E9;
+        }
+
+        .logout-btn{
+
+            width:100%;
+
+            border:none;
+
+            background:#FF4D4F;
+
+            color:white;
+
+            padding:16px;
+
+            border-radius:16px;
+
+            font-size:18px;
+            font-weight:600;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .logout-btn:hover{
+
+            opacity:0.9;
+        }
+
+        /* ========================= */
+        /* MAIN CONTENT */
+        /* ========================= */
+
+        .main-content{
+
+            flex:1;
+
+            padding:30px;
+
+            margin-left:260px;
+        }
+
+        .topbar{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:35px;
+        }
+
+        .page-title{
+
+            font-size:52px;
+            font-weight:800;
+
+            color:#111827;
+        }
+
+        .profile-image{
+
+            width:70px;
+            height:70px;
+
+            border-radius:50%;
+
+            object-fit:cover;
+        }
+
+        /* ========================= */
+        /* WISHLIST */
+        /* ========================= */
+
+        .wishlist-section{
+
+            background:white;
+
+            padding:30px;
+
+            border-radius:30px;
+        }
+
+        .wishlist-header{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:30px;
+        }
+
+        .wishlist-header h2{
+
+            font-size:36px;
+            font-weight:800;
+
+            color:#111827;
+        }
+
+        .wishlist-count{
+
+            background:#3563E9;
+
+            color:white;
+
+            padding:12px 20px;
+
+            border-radius:14px;
+
+            font-size:16px;
+            font-weight:600;
+        }
+
+        .wishlist-grid{
+
+            display:grid;
+
+            grid-template-columns:
+            repeat(auto-fit,minmax(260px,1fr));
+
+            gap:25px;
+        }
+
+        .wishlist-card{
+
+            background:#F5F7FB;
+
+            border-radius:24px;
+
+            padding:24px;
+
+            transition:0.3s;
+        }
+
+        .wishlist-card:hover{
+
+            transform:translateY(-5px);
+        }
+
+        .wishlist-image{
+
+            width:100%;
+            height:220px;
+
+            object-fit:contain;
+
+            margin-bottom:18px;
+        }
+
+        .wishlist-card h3{
+
+            font-size:24px;
+            font-weight:700;
+
+            color:#111827;
+
+            margin-bottom:12px;
+        }
+
+        .wishlist-price{
+
+            font-size:38px;
+            font-weight:800;
+
+            color:#16A34A;
+
+            margin-bottom:22px;
+        }
+
+        .wishlist-actions{
+
+            display:flex;
+
+            gap:12px;
+        }
+
+        .compare-btn{
+
+            flex:1;
+
+            border:none;
+
+            background:#3563E9;
+
+            color:white;
+
+            padding:14px;
+
+            border-radius:14px;
+
+            font-size:16px;
+            font-weight:600;
+
+            cursor:pointer;
+        }
+
+        .remove-btn{
+
+            flex:1;
+
+            border:none;
+
+            background:#FF4D4F;
+
+            color:white;
+
+            padding:14px;
+
+            border-radius:14px;
+
+            font-size:16px;
+            font-weight:600;
+
+            cursor:pointer;
+        }
+
+    </style>
 
 </head>
+
 <body>
 
-<div class="main-content">
+    <!-- ========================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================= -->
 
-  <h1 class="page-title">
-    My Wishlist
-  </h1>
+    <div class="sidebar">
 
-</div>
+        <div>
+
+            <div class="logo">
+                JerseyScout
+            </div>
+
+            <div class="sidebar-links">
+
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a href="review-checker.html">
+                    AI Review
+                </a>
+
+                <a href="wishlist.html">
+                    Wishlist
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+            </div>
+
+        </div>
+
+        <button
+            class="logout-btn"
+            onclick="window.location.href='index.html'"
+        >
+            Logout
+        </button>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- MAIN -->
+    <!-- ========================= -->
+
+    <div class="main-content">
+
+        <div class="topbar">
+
+            <div class="page-title">
+                Wishlist ❤️
+            </div>
+
+            <img
+                src="https://randomuser.me/api/portraits/men/32.jpg"
+                class="profile-image"
+            >
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- WISHLIST -->
+        <!-- ========================= -->
+
+        <div class="wishlist-section">
+
+            <div class="wishlist-header">
+
+                <h2>
+                    Saved Products
+                </h2>
+
+                <div class="wishlist-count">
+                    4 Items
+                </div>
+
+            </div>
+
+            <div class="wishlist-grid">
+
+                <!-- PRODUCT 1 -->
+
+                <div class="wishlist-card">
+
+                    <img
+                        src="https://m.media-amazon.com/images/I/61bK6PMOC3L._SX679_.jpg"
+                        class="wishlist-image"
+                    >
+
+                    <h3>
+                        iPhone 15 Pro Max
+                    </h3>
+
+                    <p class="wishlist-price">
+                        ₹1,49,900
+                    </p>
+
+                    <div class="wishlist-actions">
+
+                        <button class="compare-btn">
+                            Compare
+                        </button>
+
+                        <button class="remove-btn">
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- PRODUCT 2 -->
+
+                <div class="wishlist-card">
+
+                    <img
+                        src="https://m.media-amazon.com/images/I/71jG+e7roXL._SX679_.jpg"
+                        class="wishlist-image"
+                    >
+
+                    <h3>
+                        PS5 Controller
+                    </h3>
+
+                    <p class="wishlist-price">
+                        ₹5,999
+                    </p>
+
+                    <div class="wishlist-actions">
+
+                        <button class="compare-btn">
+                            Compare
+                        </button>
+
+                        <button class="remove-btn">
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- PRODUCT 3 -->
+
+                <div class="wishlist-card">
+
+                    <img
+                        src="https://m.media-amazon.com/images/I/61vXRMrmU9L._SX679_.jpg"
+                        class="wishlist-image"
+                    >
+
+                    <h3>
+                        Nike Air Jordan
+                    </h3>
+
+                    <p class="wishlist-price">
+                        ₹8,499
+                    </p>
+
+                    <div class="wishlist-actions">
+
+                        <button class="compare-btn">
+                            Compare
+                        </button>
+
+                        <button class="remove-btn">
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- PRODUCT 4 -->
+
+                <div class="wishlist-card">
+
+                    <img
+                        src="https://m.media-amazon.com/images/I/61CGHv6kmWL._SX679_.jpg"
+                        class="wishlist-image"
+                    >
+
+                    <h3>
+                        Apple AirPods Pro
+                    </h3>
+
+                    <p class="wishlist-price">
+                        ₹22,999
+                    </p>
+
+                    <div class="wishlist-actions">
+
+                        <button class="compare-btn">
+                            Compare
+                        </button>
+
+                        <button class="remove-btn">
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </body>
+
 </html>
