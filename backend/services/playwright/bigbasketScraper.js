@@ -7,7 +7,7 @@ module.exports = async (productName) => {
     try {
 
         browser = await chromium.launch({
-            headless: true
+            headless: false
         });
 
         const page = await browser.newPage();
@@ -15,15 +15,26 @@ module.exports = async (productName) => {
         await page.goto(
             `https://www.bigbasket.com/ps/?q=${encodeURIComponent(productName)}`,
             {
-                waitUntil: "domcontentloaded",
+                waitUntil: "networkidle",
                 timeout: 60000
             }
         );
 
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(8000);
+
+        /* =========================
+           UPDATED PRODUCT LOCATOR
+        ========================= */
+
+        await page.waitForSelector(
+            'a[href*="/pd/"]',
+            {
+                timeout: 15000
+            }
+        );
 
         const products = page.locator(
-            'div.SKUDeck___StyledDiv-sc-1e5d9gk-0'
+            'a[href*="/pd/"]'
         );
 
         const count = await products.count();
@@ -35,7 +46,12 @@ module.exports = async (productName) => {
             );
         }
 
-        const firstProduct = products.first();
+        const firstProduct =
+        products.first();
+
+        /* =========================
+           TITLE
+        ========================= */
 
         let title = "";
 
@@ -46,6 +62,8 @@ module.exports = async (productName) => {
                 .first()
                 .textContent();
 
+            title = title.trim();
+
         }
 
         catch {
@@ -53,48 +71,42 @@ module.exports = async (productName) => {
             title = productName;
         }
 
-let price = "";
+        /* =========================
+           PRICE
+        ========================= */
 
-try {
+        let price = "";
 
-    const allPrices = await firstProduct
-        .locator("span")
-        .allTextContents();
+        try {
 
-    let actualPrice = "";
+            const productText =
+            await firstProduct.textContent();
 
-    for (const text of allPrices) {
+            const match =
+            productText.match(
+                /₹\s?([\d,]+)/
+            );
 
-        if (
-            text.includes("₹") &&
-            !text.toLowerCase().includes("off")
-        ) {
+            if (!match) {
 
-            actualPrice = text;
-            break;
+                throw new Error(
+                    "Price not found"
+                );
+            }
+
+            price =
+            `₹${match[1]}`;
+
         }
-    }
 
-    if (!actualPrice) {
+        catch {
 
-        throw new Error("Price not found");
-    }
+            price = "Unavailable";
+        }
 
-    const match = actualPrice.match(/₹\s?([\d,]+)/);
-
-    if (!match) {
-
-        throw new Error("Price not found");
-    }
-
-    price = `₹${match[1]}`;
-
-    }
-
-catch {
-
-    price = "Unavailable";
-}
+        /* =========================
+           IMAGE
+        ========================= */
 
         let image = "";
 
@@ -110,26 +122,20 @@ catch {
         catch {
 
             image =
-                "https://www.bigbasket.com/media/uploads/banner_images/250125-1.jpg";
+            "https://www.bigbasket.com/media/uploads/banner_images/250125-1.jpg";
         }
+
+        /* =========================
+           PRODUCT URL
+        ========================= */
 
         let href = "";
 
         try {
 
-            href = await firstProduct
-                .locator("a")
-                .first()
+            href =
+            await firstProduct
                 .getAttribute("href");
-
-            if (!href) {
-
-                href = await firstProduct
-                    .locator("h3")
-                    .first()
-                    .locator("xpath=..")
-                    .getAttribute("href");
-            }
 
         }
 
@@ -142,15 +148,18 @@ catch {
 
         if (href) {
 
-            productUrl = href.startsWith("http")
+            productUrl =
+            href.startsWith("http")
+
                 ? href
+
                 : `https://www.bigbasket.com${href}`;
         }
 
         else {
 
             productUrl =
-                `https://www.bigbasket.com/ps/?q=${encodeURIComponent(productName)}`;
+            `https://www.bigbasket.com/ps/?q=${encodeURIComponent(productName)}`;
         }
 
         await browser.close();
@@ -194,10 +203,10 @@ catch {
             price: "N/A",
 
             image:
-                "https://www.bigbasket.com/media/uploads/banner_images/250125-1.jpg",
+            "https://www.bigbasket.com/media/uploads/banner_images/250125-1.jpg",
 
             url:
-                `https://www.bigbasket.com/ps/?q=${encodeURIComponent(productName)}`
+            `https://www.bigbasket.com/ps/?q=${encodeURIComponent(productName)}`
         };
     }
 };

@@ -1,11 +1,24 @@
-const express = require("express");
+const express =
+require("express");
+
+const router =
+express.Router();
 
 const {
-  analyzeReviews
-} = require("../controllers/reviewController");
 
-const router = express.Router();
+    checkReviews
 
-router.post("/analyze", analyzeReviews);
+} = require(
 
-module.exports = router;
+    "../controllers/reviewController"
+);
+
+router.post(
+
+    "/check",
+
+    checkReviews
+);
+
+module.exports =
+router;

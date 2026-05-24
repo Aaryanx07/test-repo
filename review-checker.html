@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
 
     <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
     >
 
     <title>
@@ -39,7 +39,7 @@
         .container{
 
             width:100%;
-            max-width:850px;
+            max-width:950px;
 
             background:white;
 
@@ -159,19 +159,16 @@
             display:flex;
             align-items:center;
             gap:30px;
+
+            margin-bottom:30px;
         }
 
         .score-circle{
 
-            width:130px;
-            height:130px;
+            width:140px;
+            height:140px;
 
             border-radius:50%;
-
-            background:conic-gradient(
-                #2f63ea 0% 82%,
-                #dfe4ff 82% 100%
-            );
 
             display:flex;
             justify-content:center;
@@ -188,8 +185,8 @@
 
             position:absolute;
 
-            width:95px;
-            height:95px;
+            width:100px;
+            height:100px;
 
             background:white;
 
@@ -200,7 +197,7 @@
 
             position:relative;
 
-            font-size:28px;
+            font-size:30px;
             font-weight:700;
 
             color:#111;
@@ -228,16 +225,95 @@
 
             display:inline-block;
 
-            background:#dff7e6;
-
-            color:#1e9b4f;
-
             padding:10px 18px;
 
             border-radius:12px;
 
             font-size:16px;
             font-weight:600;
+        }
+
+        .trusted{
+
+            background:#dff7e6;
+            color:#1e9b4f;
+        }
+
+        .fake{
+
+            background:#ffe1e1;
+            color:#e53935;
+        }
+
+        .loading{
+
+            text-align:center;
+
+            padding:30px;
+
+            font-size:22px;
+
+            color:#2f63ea;
+
+            display:none;
+        }
+
+        .review-list{
+
+            margin-top:20px;
+
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+        }
+
+        .review-item{
+
+            background:#f8f9ff;
+
+            padding:22px;
+
+            border-radius:18px;
+        }
+
+        .review-top{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:12px;
+        }
+
+        .review-score{
+
+            font-size:15px;
+            font-weight:700;
+
+            padding:8px 14px;
+
+            border-radius:10px;
+        }
+
+        .real{
+
+            background:#dff7e6;
+            color:#1e9b4f;
+        }
+
+        .spam{
+
+            background:#ffe1e1;
+            color:#e53935;
+        }
+
+        .review-text{
+
+            font-size:17px;
+
+            color:#444;
+
+            line-height:1.6;
         }
 
         @media(max-width:768px){
@@ -267,6 +343,13 @@
 
                 height:55px;
             }
+
+            .review-top{
+
+                flex-direction:column;
+                align-items:flex-start;
+                gap:10px;
+            }
         }
 
     </style>
@@ -286,7 +369,7 @@
                 </h1>
 
                 <p class="subtitle">
-                    Paste product URL to analyze reviews.
+                    Paste Amazon / Flipkart product URL to analyze reviews.
                 </p>
 
             </div>
@@ -307,7 +390,7 @@
             <input
             type="text"
             id="reviewUrl"
-            placeholder="Paste Amazon / Flipkart product URL..."
+            placeholder="Paste product URL..."
             >
 
             <button id="analyzeBtn">
@@ -318,39 +401,68 @@
 
         </div>
 
+        <!-- LOADING -->
+
+        <div class="loading"
+            id="loading">
+
+            🤖 AI analyzing reviews...
+
+        </div>
+
         <!-- RESULT -->
 
-        <div class="result-card">
+        <div
+            class="result-card"
+            id="resultCard"
+            style="display:none;"
+        >
 
-            <div class="score-circle">
+            <div
+                class="score-circle"
+                id="scoreCircle"
+            >
 
-                <div class="score">
-
-                    82%
-
+                <div
+                    class="score"
+                    id="scoreText"
+                >
+                    0%
                 </div>
 
             </div>
 
             <div class="result-content">
 
-                <h2>
-                    Reviews Mostly Authentic
+                <h2
+                    id="resultTitle"
+                >
+                    Reviews Analysis
                 </h2>
 
-                <p>
-                    AI detected low spam probability and
-                    genuine customer engagement patterns
-                    across reviews.
+                <p
+                    id="resultDescription"
+                >
+                    AI analysis completed.
                 </p>
 
-                <div class="badge">
-
-                    ✓ Trusted Product Reviews
-
+                <div
+                    class="badge trusted"
+                    id="resultBadge"
+                >
+                    ✓ Trusted Reviews
                 </div>
 
             </div>
+
+        </div>
+
+        <!-- REVIEWS -->
+
+        <div
+            class="review-list"
+            id="reviewList"
+        >
 
         </div>
 
@@ -361,22 +473,221 @@
         const analyzeBtn =
         document.getElementById("analyzeBtn");
 
-        analyzeBtn.addEventListener("click",()=>{
+        const loading =
+        document.getElementById("loading");
 
-            const url =
-            document.getElementById("reviewUrl").value;
+        const resultCard =
+        document.getElementById("resultCard");
 
-            if(!url){
+        const scoreCircle =
+        document.getElementById("scoreCircle");
 
-                alert("Please paste a product URL");
+        const scoreText =
+        document.getElementById("scoreText");
 
-                return;
+        const resultTitle =
+        document.getElementById("resultTitle");
+
+        const resultDescription =
+        document.getElementById("resultDescription");
+
+        const resultBadge =
+        document.getElementById("resultBadge");
+
+        const reviewList =
+        document.getElementById("reviewList");
+
+        analyzeBtn.addEventListener(
+
+            "click",
+
+            async()=>{
+
+                const url =
+                document
+                .getElementById("reviewUrl")
+                .value;
+
+               if(!url){
+
+    alert(
+        "Please paste a product URL"
+    );
+
+    return;
+}
+
+const validUrlPattern =
+
+/^(https?:\/\/)(www\.)?(amazon|flipkart)/i;
+
+if(!validUrlPattern.test(url)){
+
+    alert(
+        "Please enter a valid Amazon or Flipkart product URL"
+    );
+
+    return;
+}
+
+                loading.style.display =
+                "block";
+
+                resultCard.style.display =
+                "none";
+
+                reviewList.innerHTML = "";
+
+                try{
+
+                    const response =
+                    await fetch(
+
+                        "http://localhost:8000/api/reviews/check",
+
+                        {
+
+                            method:"POST",
+
+                            headers:{
+                                "Content-Type":
+                                "application/json"
+                            },
+
+                            body:JSON.stringify({
+
+                                productUrl:url
+                            })
+                        }
+                    );
+
+                    const data =
+                    await response.json();
+
+                    loading.style.display =
+                    "none";
+
+                    resultCard.style.display =
+                    "flex";
+
+                    const percentage =
+                    Math.round(
+
+                        data.analysis
+                        .overall_fake_percentage
+                    );
+
+                    scoreText.innerText =
+                    `${percentage}%`;
+
+                    scoreCircle.style.background =
+
+                    `conic-gradient(
+                        ${
+                            percentage > 50
+                            ?
+                            "#ef4444"
+                            :
+                            "#2f63ea"
+                        }
+                        0%
+                        ${percentage}%,
+
+                        #dfe4ff
+                        ${percentage}% 100%
+                    )`;
+
+                    if(percentage > 50){
+
+                        resultTitle.innerText =
+                        "High Fake Review Probability";
+
+                        resultDescription.innerText =
+
+                        "AI detected suspicious review patterns, repetitive wording and spam-like behavior.";
+
+                        resultBadge.innerText =
+                        "⚠ Suspicious Reviews";
+
+                        resultBadge.className =
+                        "badge fake";
+                    }
+
+                    else{
+
+                        resultTitle.innerText =
+                        "Reviews Mostly Authentic";
+
+                        resultDescription.innerText =
+
+                        "AI detected low spam probability and genuine customer engagement patterns.";
+
+                        resultBadge.innerText =
+                        "✓ Trusted Product Reviews";
+
+                        resultBadge.className =
+                        "badge trusted";
+                    }
+
+                    data.analysis.reviews
+                    .forEach(review => {
+
+                        const isFake =
+                        review.fake_probability > 50;
+
+                        reviewList.innerHTML +=
+
+                        `
+                        <div class="review-item">
+
+                            <div class="review-top">
+
+                                <strong>
+                                    Review Analysis
+                                </strong>
+
+                                <div class="review-score ${isFake ? "spam" : "real"}">
+
+                                    ${
+                                        isFake
+                                        ?
+                                        "⚠ Fake"
+                                        :
+                                        "✓ Genuine"
+                                    }
+
+                                    -
+                                    ${review.fake_probability}%
+
+                                </div>
+
+                            </div>
+
+                            <div class="review-text">
+
+                                ${review.review}
+
+                            </div>
+
+                        </div>
+                        `;
+                    });
+
+                }
+
+                catch(error){
+
+                    loading.style.display =
+                    "none";
+
+                    alert(
+                        "Backend Error"
+                    );
+
+                    console.log(error);
+                }
             }
-
-            alert(
-                "AI Review Analysis Started"
-            );
-        });
+        );
 
     </script>
 

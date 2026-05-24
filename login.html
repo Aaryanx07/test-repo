@@ -1,43 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-  <title>Login</title>
+    <meta charset="UTF-8">
 
-  <link rel="stylesheet" href="assets/css/auth.css">
+    <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Login
+    </title>
+
+    <link
+    rel="stylesheet"
+    href="assets/css/auth.css"
+    >
 
 </head>
+
 <body>
 
 <div class="auth-container">
 
-  <div class="auth-box">
+    <div class="auth-box">
 
-    <h1>Login</h1>
+        <h1>
+            Login
+        </h1>
 
-    <form id="loginForm">
+        <form id="loginForm">
 
-      <input type="email" placeholder="Email">
+            <input
+            type="email"
+            id="email"
+            placeholder="Email"
+            required
+            >
 
-      <input type="password" placeholder="Password">
+            <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+            >
 
-      <button type="submit">
-        Login
-      </button>
+            <button
+            type="submit"
+            >
+                Login
+            </button>
 
-    </form>
+        </form>
 
-    <p>
-      Don't have an account?
-      <a href="signup.html">Signup</a>
-    </p>
+        <p>
 
-  </div>
+            Don't have an account?
+
+            <a href="signup.html">
+
+                Signup
+
+            </a>
+
+        </p>
+
+    </div>
 
 </div>
 
-<script src="assets/js/auth.js"></script>
+<script>
+
+const loginForm =
+
+document.getElementById(
+    "loginForm"
+);
+
+loginForm.addEventListener(
+
+    "submit",
+
+    async function(event){
+
+        event.preventDefault();
+
+        try{
+
+            const email =
+
+            document.getElementById(
+                "email"
+            ).value.trim();
+
+            const password =
+
+            document.getElementById(
+                "password"
+            ).value.trim();
+
+            if(!email || !password){
+
+                alert(
+                    "Please fill all fields"
+                );
+
+                return;
+            }
+
+            const response =
+
+            await fetch(
+
+                "http://localhost:8000/api/auth/login",
+
+                {
+
+                    method:"POST",
+
+                    headers:{
+
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        email,
+                        password
+                    })
+                }
+            );
+
+            const data =
+            await response.json();
+
+            console.log(data);
+
+            if(response.ok){
+
+                localStorage.setItem(
+
+                    "token",
+                    data.token
+                );
+
+                localStorage.setItem(
+
+                    "user",
+
+                    JSON.stringify(
+                        data.user
+                    )
+                );
+
+                alert(
+                    "Login Successful"
+                );
+
+                window.location.href =
+                "dashboard.html";
+            }
+
+            else{
+
+                if(
+                    data.message ===
+                    "User not found"
+                ){
+
+                    alert(
+                        "No account found with this email"
+                    );
+                }
+
+                else if(
+                    data.message ===
+                    "Incorrect password"
+                ){
+
+                    alert(
+                        "Incorrect password"
+                    );
+                }
+
+                else{
+
+                    alert(
+                        data.message ||
+                        "Login failed"
+                    );
+                }
+            }
+        }
+
+        catch(error){
+
+            console.log(error);
+
+            alert(
+                "Server Error"
+            );
+        }
+    }
+);
+
+</script>
 
 </body>
-</html>
 
+</html>

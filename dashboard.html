@@ -44,6 +44,15 @@
             justify-content:space-between;
 
             box-shadow:0 0 15px rgba(0,0,0,0.05);
+
+            position:fixed;
+
+            left:0;
+            top:0;
+
+            height:100vh;
+
+            z-index:100;
         }
 
         .top-sidebar{
@@ -115,7 +124,10 @@
         .main{
 
             flex:1;
+
             padding:30px;
+
+            margin-left:240px;
         }
 
         /* TOPBAR */
@@ -124,10 +136,12 @@
 
             display:flex;
             justify-content:space-between;
-            align-items:center;
+            align-items:flex-start;
 
             margin-bottom:35px;
         }
+
+        /* SEARCH BAR */
 
         .search-bar{
 
@@ -135,11 +149,22 @@
 
             display:flex;
             gap:15px;
+
+            align-items:flex-start;
+
+            position:relative;
+        }
+
+        .search-input-wrapper{
+
+            position:relative;
+
+            flex:1;
         }
 
         .search-bar input{
 
-            flex:1;
+            width:100%;
 
             padding:18px 24px;
 
@@ -151,6 +176,10 @@
             font-size:20px;
 
             background:white;
+
+            position:relative;
+
+            z-index:10;
         }
 
         .search-bar button{
@@ -169,12 +198,88 @@
             cursor:pointer;
 
             transition:0.3s;
+
+            height:64px;
+
+            position:relative;
+
+            z-index:10;
         }
 
         .search-bar button:hover{
 
             background:#1d4ed8;
         }
+
+        /* MIC BUTTON */
+
+        .mic-btn{
+
+            width:70px;
+
+            border:none;
+
+            background:#111827;
+
+            color:white;
+
+            border-radius:16px;
+
+            font-size:28px;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .mic-btn:hover{
+
+            background:#2f63ea;
+        }
+
+        .mic-btn.listening{
+
+            background:#ef4444;
+
+            animation:pulse 1s infinite;
+        }
+
+        @keyframes pulse{
+
+            0%{
+
+                transform:scale(1);
+            }
+
+            50%{
+
+                transform:scale(1.08);
+            }
+
+            100%{
+
+                transform:scale(1);
+            }
+        }
+
+        /* LISTENING TEXT */
+
+        .listening-text{
+
+            position:absolute;
+
+            bottom:-38px;
+            left:10px;
+
+            font-size:16px;
+            font-weight:600;
+
+            color:#ef4444;
+
+            display:none;
+        }
+
+        /* PROFILE */
 
         .profile{
 
@@ -267,6 +372,75 @@
             font-size:26px;
         }
 
+        /* GOOGLE STYLE AUTOCOMPLETE */
+
+        .suggestions-box{
+
+            position:absolute;
+
+            top:74px;
+
+            left:0;
+
+            width:100%;
+
+            background:white;
+
+            border-radius:18px;
+
+            overflow:hidden;
+
+            box-shadow:
+            0 8px 30px rgba(0,0,0,0.08);
+
+            border:1px solid #ececec;
+
+            z-index:9999;
+
+            display:none;
+        }
+
+        .suggestion-item{
+
+            padding:16px 22px;
+
+            font-size:18px;
+
+            color:#111827;
+
+            cursor:pointer;
+
+            transition:0.2s;
+
+            border-bottom:
+            1px solid #f3f4f6;
+
+            display:flex;
+
+            align-items:center;
+
+            gap:12px;
+        }
+
+        .suggestion-item:last-child{
+
+            border-bottom:none;
+        }
+
+        .suggestion-item:hover{
+
+            background:#f5f7ff;
+        }
+
+        .suggestion-item::before{
+
+            content:"🔍";
+
+            font-size:15px;
+
+            opacity:0.7;
+        }
+
         /* RESPONSIVE */
 
         @media(max-width:1200px){
@@ -289,6 +463,13 @@
 
                 width:100%;
                 height:auto;
+
+                position:relative;
+            }
+
+            .main{
+
+                margin-left:0;
             }
 
             .categories{
@@ -339,10 +520,6 @@
                     Wishlist
                 </a>
 
-                <a href="./alerts.html">
-                    Alerts
-                </a>
-
                 <a href="./profile.html">
                     Profile
                 </a>
@@ -351,14 +528,14 @@
 
         </div>
 
-     <button
-        class="logout-btn"
-        onclick="window.location.href='index.html'"
-    >
+<button
+class="logout-btn"
+onclick="logout()"
+>
 
-        Logout
+    Logout
 
-    </button>
+</button>
 
     </div>
 
@@ -372,17 +549,45 @@
 
             <div class="search-bar">
 
-                <input
-                type="text"
-                id="productUrl"
-                placeholder="Paste Amazon / Flipkart product URL..."
+                <div class="search-input-wrapper">
+
+                    <input
+                    type="text"
+                    id="productUrl"
+                    placeholder="Paste Amazon / Flipkart product URL..."
+                    >
+
+                </div>
+
+                <!-- MIC -->
+
+                <button
+                class="mic-btn"
+                id="micBtn"
                 >
+
+                    🎤
+
+                </button>
+
+                <!-- SEARCH -->
 
                 <button id="searchBtn">
 
                     Search
 
                 </button>
+
+                <!-- LISTENING -->
+
+                <div
+                class="listening-text"
+                id="listeningText"
+                >
+
+                    Listening...
+
+                </div>
 
             </div>
 
@@ -479,42 +684,501 @@
 
     </div>
 
-    <!-- SEARCH SCRIPT -->
+<script>
 
-    <script>
+const token =
 
-        const searchBtn =
-        document.getElementById("searchBtn");
+localStorage.getItem(
+    "token"
+);
 
-        const productUrl =
-        document.getElementById("productUrl");
+if(!token){
 
-        searchBtn.addEventListener("click", ()=>{
+    window.location.href =
+    "login.html";
+}
 
-            const url =
-            productUrl.value.trim();
+const searchInput =
+document.getElementById(
+    "productUrl"
+);
 
-            if(!url){
+const searchBtn =
+document.getElementById(
+    "searchBtn"
+);
 
-                alert("Please paste a product URL");
+const micBtn =
+document.getElementById(
+    "micBtn"
+);
+
+const listeningText =
+document.getElementById(
+    "listeningText"
+);
+function logout(){
+
+    localStorage.removeItem(
+        "token"
+    );
+
+    localStorage.removeItem(
+        "user"
+    );
+
+    window.location.href =
+    "login.html";
+}
+/* =========================
+   AUTOCOMPLETE
+========================= */
+
+const suggestionsBox =
+document.createElement("div");
+
+suggestionsBox.className =
+"suggestions-box";
+
+document
+.querySelector(".search-input-wrapper")
+.appendChild(suggestionsBox);
+
+const suggestions = [
+
+    "iphone",
+
+    "iphone 17 pro max",
+
+    "iphone XR",
+
+    "Macbook Air M3",
+
+    "PS5",
+
+    "Nike shoes",
+
+    "Gaming mouse",
+
+    "Protein powder",
+
+    "Basketball",
+
+    "Wireless headphones",
+
+    "Mechanical keyboard",
+
+    "Samsung S24 Ultra",
+
+    "Airpods Pro",
+
+    "Football studs",
+
+    "Gaming keyboard",
+
+    "OnePlus 12",
+
+    "JBL speaker"
+];
+
+/* =========================
+   RENDER SUGGESTIONS
+========================= */
+
+function renderSuggestions(filtered){
+
+    suggestionsBox.innerHTML =
+    "";
+
+    filtered.forEach(item=>{
+
+        const div =
+        document.createElement("div");
+
+        div.className =
+        "suggestion-item";
+
+        div.innerHTML =
+        `<span>${item}</span>`;
+
+        div.addEventListener(
+
+            "click",
+
+            ()=>{
+
+                searchInput.value =
+                item;
+
+                suggestionsBox.style.display =
+                "none";
+            }
+        );
+
+        suggestionsBox.appendChild(div);
+    });
+
+    suggestionsBox.style.display =
+
+    filtered.length
+    ? "block"
+    : "none";
+}
+
+/* =========================
+   DEFAULT SUGGESTIONS
+========================= */
+
+searchInput.addEventListener(
+
+    "focus",
+
+    ()=>{
+
+        renderSuggestions(
+
+            suggestions.slice(0,8)
+        );
+    }
+);
+
+/* =========================
+   FILTER
+========================= */
+
+searchInput.addEventListener(
+
+    "input",
+
+    ()=>{
+
+        const value =
+
+        searchInput.value
+        .toLowerCase()
+        .trim();
+
+        if(!value){
+
+            renderSuggestions(
+
+                suggestions.slice(0,8)
+            );
+
+            return;
+        }
+
+        const filtered =
+
+        suggestions.filter(item=>
+
+            item
+            .toLowerCase()
+            .includes(value)
+        );
+
+        renderSuggestions(filtered);
+    }
+);
+
+/* =========================
+   HIDE
+========================= */
+
+document.addEventListener(
+
+    "click",
+
+    (e)=>{
+
+        if(
+
+            !e.target.closest(
+                ".search-input-wrapper"
+            )
+
+        ){
+
+            suggestionsBox.style.display =
+            "none";
+        }
+    }
+);
+
+/* =========================
+   SEARCH
+========================= */
+
+searchBtn.addEventListener(
+
+    "click",
+
+    ()=>{
+
+        const query =
+        searchInput.value.trim();
+
+        if(!query){
+
+            alert(
+                "Please enter a product"
+            );
+
+            return;
+        }
+
+        window.location.href =
+
+        `search-results.html?url=${encodeURIComponent(query)}`;
+    }
+);
+
+/* =========================
+   ENTER SEARCH
+========================= */
+
+searchInput.addEventListener(
+
+    "keypress",
+
+    (e)=>{
+
+        if(e.key === "Enter"){
+
+            searchBtn.click();
+        }
+    }
+);
+
+/* =========================
+   VOICE SEARCH WORKING
+========================= */
+
+const SpeechRecognition =
+
+    window.SpeechRecognition ||
+
+    window.webkitSpeechRecognition;
+
+if(SpeechRecognition){
+
+    const recognition =
+    new SpeechRecognition();
+
+    recognition.lang =
+    "en-US";
+
+    recognition.continuous =
+    true;
+
+    recognition.interimResults =
+    true;
+
+    let isListening =
+    false;
+
+    let finalTranscript =
+    "";
+
+/* =========================
+   MIC CLICK
+========================= */
+
+    micBtn.addEventListener(
+
+        "click",
+
+        async()=>{
+
+            /* STOP */
+
+            if(isListening){
+
+                isListening =
+                false;
+
+                recognition.stop();
 
                 return;
             }
 
-            window.location.href =
+            try{
 
-            `search-results.html?url=${encodeURIComponent(url)}`;
-        });
+                await navigator
+                .mediaDevices
+                .getUserMedia({
 
-        productUrl.addEventListener("keypress",(e)=>{
+                    audio:true
+                });
 
-            if(e.key === "Enter"){
+                finalTranscript =
+                "";
 
-                searchBtn.click();
+                recognition.start();
+
+                isListening =
+                true;
+
+                micBtn.classList.add(
+                    "listening"
+                );
+
+                micBtn.innerHTML =
+                "🎙️";
+
+                listeningText.style.display =
+                "block";
+
+                listeningText.innerText =
+                "Listening...";
             }
-        });
 
-    </script>
+            catch(error){
+
+                console.log(error);
+
+                alert(
+                    "Please allow microphone access"
+                );
+            }
+        }
+    );
+
+/* =========================
+   RESULTS
+========================= */
+
+    recognition.onresult =
+    (event)=>{
+
+        let interimTranscript =
+        "";
+
+        for(
+
+            let i =
+            event.resultIndex;
+
+            i <
+            event.results.length;
+
+            i++
+        ){
+
+            const transcript =
+
+            event.results[i][0]
+            .transcript;
+
+            if(
+
+                event.results[i]
+                .isFinal
+
+            ){
+
+                finalTranscript +=
+                transcript + " ";
+            }
+
+            else{
+
+                interimTranscript +=
+                transcript;
+            }
+        }
+
+        /* UPDATE INPUT */
+
+        searchInput.value =
+
+        finalTranscript +
+        interimTranscript;
+
+        /* UPDATE SUGGESTIONS */
+
+        const filtered =
+
+        suggestions.filter(item=>
+
+            item
+            .toLowerCase()
+            .includes(
+
+                searchInput.value
+                .toLowerCase()
+            )
+        );
+
+        renderSuggestions(filtered);
+    };
+
+/* =========================
+   KEEP LISTENING
+========================= */
+
+    recognition.onend =
+    ()=>{
+
+        if(isListening){
+
+            recognition.start();
+        }
+
+        else{
+
+            micBtn.classList.remove(
+                "listening"
+            );
+
+            micBtn.innerHTML =
+            "🎤";
+
+            listeningText.style.display =
+            "none";
+        }
+    };
+
+/* =========================
+   ERRORS
+========================= */
+
+    recognition.onerror =
+    (event)=>{
+
+        console.log(
+            "VOICE ERROR:",
+            event.error
+        );
+
+        if(
+
+            event.error ===
+            "not-allowed"
+
+        ){
+
+            alert(
+                "Please allow microphone access"
+            );
+
+            isListening =
+            false;
+        }
+    };
+}
+
+else{
+
+    micBtn.style.display =
+    "none";
+
+    console.log(
+        "Speech recognition not supported"
+    );
+}
+
+</script>
 
 </body>
 

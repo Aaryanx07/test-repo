@@ -1,5 +1,12 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const reviewRoutes =
+require("./routes/reviewRoutes");
+const connectDB =
+require("./config/db");
+const authRoutes =
+require("./routes/authRoutes");
 
 const app = express();
 
@@ -38,8 +45,18 @@ app.use((err,req,res,next)=>{
     });
 });
 
+app.use(
+    "/api/reviews",
+    reviewRoutes
+);
+app.use(
+    "/api/auth",
+    authRoutes
+);
+
 const PORT = 8000;
 
+connectDB();
 app.listen(PORT, ()=>{
 
     console.log(

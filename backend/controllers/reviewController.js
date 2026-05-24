@@ -1,17 +1,51 @@
-const reviewProcessor = require(
-  "../services/reviewAI/reviewProcessor"
-);
+const scrapeReviews =
+require("../services/playwright/reviewScraper");
 
-const analyzeReviews = async (req, res) => {
+const analyzeReviews =
+require("../services/reviewAnalyzer");
 
-  const { url } = req.body;
+exports.checkReviews =
+async(req,res)=>{
 
-  const results = await reviewProcessor(url);
+    try{
 
-  res.json(results);
+        const { productUrl } =
+        req.body;
 
-};
+        if(!productUrl){
 
-module.exports = {
-  analyzeReviews
+            return res.status(400).json({
+
+                success:false,
+
+                message:
+                "Product URL required"
+            });
+        }
+
+        const reviews =
+        await scrapeReviews(productUrl);
+
+        const analysis =
+        await analyzeReviews(reviews);
+
+        return res.json({
+
+            success:true,
+
+            analysis
+        });
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        return res.status(500).json({
+
+            success:false,
+
+            message:error.message
+        });
+    }
 };

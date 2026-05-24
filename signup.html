@@ -1,38 +1,222 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-  <title>Signup</title>
+    <meta charset="UTF-8">
 
-  <link rel="stylesheet" href="assets/css/auth.css">
+    <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Signup
+    </title>
+
+    <link
+    rel="stylesheet"
+    href="assets/css/auth.css"
+    >
 
 </head>
+
 <body>
 
 <div class="auth-container">
 
-  <div class="auth-box">
+    <div class="auth-box">
 
-    <h1>Create Account</h1>
+        <h1>
+            Create Account
+        </h1>
 
-    <form>
+        <form id="signupForm">
 
-      <input type="text" placeholder="Full Name">
+            <input
+            type="text"
+            id="name"
+            placeholder="Full Name"
+            required
+            >
 
-      <input type="email" placeholder="Email">
+            <input
+            type="email"
+            id="email"
+            placeholder="Email"
+            required
+            >
 
-      <input type="password" placeholder="Password">
+            <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+            >
 
-      <button>
-        Signup
-      </button>
+            <button
+            type="submit"
+            >
+                Signup
+            </button>
 
-    </form>
+        </form>
 
-  </div>
+        <p>
+
+            Already have an account?
+
+            <a href="login.html">
+
+                Login
+
+            </a>
+
+        </p>
+
+    </div>
 
 </div>
 
-</body>
-</html>
+<script>
 
+const signupForm =
+
+document.getElementById(
+    "signupForm"
+);
+
+signupForm.addEventListener(
+
+    "submit",
+
+    async function(event){
+
+        event.preventDefault();
+
+        try{
+
+            const name =
+
+            document.getElementById(
+                "name"
+            ).value.trim();
+
+            const email =
+
+            document.getElementById(
+                "email"
+            ).value.trim();
+
+            const password =
+
+            document.getElementById(
+                "password"
+            ).value.trim();
+
+            if(
+                !name ||
+                !email ||
+                !password
+            ){
+
+                alert(
+                    "Please fill all fields"
+                );
+
+                return;
+            }
+
+            const response =
+
+            await fetch(
+
+                "http://localhost:8000/api/auth/signup",
+
+                {
+
+                    method:"POST",
+
+                    headers:{
+
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        name,
+                        email,
+                        password
+                    })
+                }
+            );
+
+            const data =
+            await response.json();
+
+            console.log(data);
+
+            if(response.ok){
+
+                alert(
+                    "Signup successful!"
+                );
+
+                localStorage.setItem(
+
+                    "token",
+                    data.token
+                );
+
+                localStorage.setItem(
+
+                    "user",
+
+                    JSON.stringify(
+                        data.user
+                    )
+                );
+
+                window.location.href =
+                "dashboard.html";
+            }
+
+            else{
+
+                if(
+                    data.message ===
+                    "User already exists"
+                ){
+
+                    alert(
+                        "Account already exists with this email"
+                    );
+                }
+
+                else{
+
+                    alert(
+                        data.message ||
+                        "Signup failed"
+                    );
+                }
+            }
+        }
+
+        catch(error){
+
+            console.log(error);
+
+            alert(
+                "Server error"
+            );
+        }
+    }
+);
+
+</script>
+
+</body>
+
+</html>
